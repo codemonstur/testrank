@@ -1,4 +1,5 @@
-.PHONY: help clean build test validate release-notes coverage
+.DEFAULT_GOAL := help
+.PHONY: help clean build test validate release-notes coverage deploy
 
 NAME=`xmllint --xpath "//project/artifactId/text()" pom.xml`
 VERSION=`xmllint --xpath "//project/version/text()" pom.xml`
@@ -11,44 +12,45 @@ else
 INFO = printf '[\033[1;34mINFO\033[m] %s\n'
 endif
 
-help:
-	@echo "Available targets for $(NAME):"
-	@echo "  help   -        this output"
-	@echo "  clean  -        Delete everything in ./target"
-	@echo "  build  -        Compiles and packages the code"
-	@echo "  test   -        Runs the tests"
-	@echo "  coverage   -        Run tests and generate a jacoco coverage report"
-	@echo "  validate -        Check dependency versions, cves, and licenses"
-	@echo "  release-notes -        Create release notes for the latest version"
+help: ## Show this help
+	@grep -hE '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
 
-clean:
+clean: ## Delete everything in ./target
 	@$(INFO) "Cleaning"
 	@mvn clean
 
-build:
+build: ## Compiles and packages the code
 	@mvn -DskipTests clean package
 
-test:
+test: ## Runs the tests
 	@mvn test
 
-# Runs the tests and writes a coverage report to target/site/jacoco
-# Noisy plugin banner lines are silenced through .mvn/maven.config
-coverage:
+coverage: ## Run tests and generate a jacoco coverage report
 	@$(INFO) "Running tests and generating coverage report"
 	@mvn -Dstyle.color=always org.jacoco:jacoco-maven-plugin:0.8.15:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.15:report
 	@$(INFO) "Coverage report written to target/site/jacoco/index.html"
 	@output=$$(java src/build/CoverageSummary.java target/site/jacoco/jacoco.csv) || exit $$?; \
 	printf '%s\n' "$$output" | while IFS= read -r line; do $(INFO) "$$line"; done
 
-validate:
+validate: ## Check dependency versions, cves, and licenses
 	@mvn versions:display-dependency-updates
 	@mvn versions:display-plugin-updates
 	@mvn validate -P vulnerabilities
 	@mvn validate -P licenses
 
-release-notes:
+release-notes: ## Create release notes for the latest version
 	@$(INFO) "Writing release notes to src/docs/releases/release-$(VERSION).txt"
 	@mkdir -p src/docs/releases
 	@echo "$(VERSION)" >> src/docs/releases/release-$(VERSION).txt
 	@echo "" >> src/docs/releases/release-$(VERSION).txt
 	@git log --pretty="%s" $(PREVIOUS_TAG)... master >> src/docs/releases/release-$(VERSION).txt
+
+deploy: ## Clean, build and deploy a version to Github and Maven Central
+	@$(INFO) "Uploading to maven central"
+	@mvn clean deploy
+	@$(INFO) "Creating github release"
+	@gh release create $(NAME)-$(VERSION) target/$(NAME).jar target/$(NAME)-javadoc.jar target/$(NAME)-sources.jar -F src/docs/releases/release-$(VERSION).txt
+	@$(INFO) "Tagging and pushing to github"
+	@git tag $(NAME)-$(VERSION)
+	@git push && git push --tags
