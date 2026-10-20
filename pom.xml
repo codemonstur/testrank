@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.codemonstur</groupId>
-    <artifactId>junitrank</artifactId>
+    <artifactId>testrank</artifactId>
     <version>0</version>
     <packaging>maven-plugin</packaging>
 
@@ -34,7 +34,7 @@
     </developers>
 
     <properties>
-        <module.name>com.github.codemonstur.junitrank</module.name>
+        <module.name>com.github.codemonstur.testrank</module.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- default for @{argLine}; jacoco's prepare-agent appends the agent when it runs -->
         <argLine></argLine>
