@@ -40,8 +40,8 @@ validate: ## Check dependency versions, cves, and licenses
 	@mvn validate -P licenses
 
 release-notes: ## Create release notes for the latest version
-	@$(INFO) "Writing release notes to src/docs/releases/release-$(VERSION).txt"
 	@mkdir -p src/docs/releases
+	@$(INFO) "Writing release notes to src/docs/releases/release-$(VERSION).txt"
 	@echo "$(VERSION)" >> src/docs/releases/release-$(VERSION).txt
 	@echo "" >> src/docs/releases/release-$(VERSION).txt
 	@git log --pretty="%s" $(PREVIOUS_TAG)... master >> src/docs/releases/release-$(VERSION).txt
