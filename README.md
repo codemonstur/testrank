@@ -62,7 +62,7 @@ Built with Maven (Java 17) and wrapped by the usual Makefile:
 make help       # list targets
 make build      # mvn -DskipTests clean package
 make test       # mvn test
-make validate   # dependency updates + CVE scan + license check
+make validate   # dependency updates, CVE scan, license check, and codegrade
 ```
 
 Or, with [bob](https://github.com/codemonstur/bobthebuildtool), use the tasks in the `bobfile`:
