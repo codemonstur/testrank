@@ -20,9 +20,8 @@ clean: ## Delete everything in ./target
 	@$(INFO) "Cleaning"
 	@mvn clean
 
-build: ## Compiles and packages the code
+build: ## Runs a mvn clean package
 	@mvn -DskipTests clean package
-
 test: ## Runs the tests
 	@mvn test
 
@@ -46,7 +45,6 @@ validate: ## Check dependency versions, cves, licenses, and code quality
 	@mvn versions:display-plugin-updates
 	@mvn verify -P vulnerabilities,licenses -DskipTests -T 1C
 	@mvn validate -P codequality
-
 release-notes: ## Create release notes for the latest version
 	@mkdir -p src/docs/releases
 	@$(INFO) "Writing release notes to src/docs/releases/release-$(VERSION).txt"
